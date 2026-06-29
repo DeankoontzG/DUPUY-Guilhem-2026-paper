@@ -9,36 +9,36 @@
 This repository requires specific handling for `graph-tool` due to its C++ dependencies. Follow these steps to build the correct environment:
 
 1. **Create and activate a clean environment:**
-   ''' bash
+   ``` bash
    conda create --name env_linkpred python=3.10 -y
    conda activate env_linkpred
-   '''
+   ```
 
 2. **Install `graph-tool` via Conda (Required first):**
-   ''' bash
+   ``` bash
    conda install -c conda-forge graph-tool -y
-   '''
+   ```
 
 3. **Install the remaining dependencies via Pip, listed in the file "requirements.txt":**
-   ''' bash
+   ``` bash
    pip install -r requirements.txt
-   '''
+   ```
 ---
 
 ## 1 - Functions available for reproductibility
 
 ### a. Compute decorelated Features & compare with Baselines
 To launch the embedding generation, community detection, and Link Prediction evaluation pipeline on both decorelated metrics and their baselines, run:
-    '''bash
+    ```bash
     python main.py
-    '''
+    ```
 
 * **Key parameters inside `main.py`:**
   * `NB_ITERATIONS = 2`: Defines the subset range of graphs to process.
   * `GRAPH_NAMES = "artificial_graph_sbmv_4"`: Root name matching your generated benchmark.
 
 The data generated during execution (Graphs with communities & embeddings stored as atteributes, train & evaluation datasets) will be stored in 📁 **`your_results/data`** in case you wish to perform further study.
-The resulting plots will be stored in **`your_results/plots`**
+The resulting plots will be stored in 📁 **`your_results/plots`**
 
 ### b. Re-generate the Synthetic Benchmark
 An artificial benchmark of 330 graphs is already available in graph_library (hybrids ratioin linearily spaced between 0 and 1 with a step of 0.1).
