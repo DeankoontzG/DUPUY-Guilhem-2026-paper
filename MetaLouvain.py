@@ -13,7 +13,6 @@ import networkx as nx
 import numpy as np
 
 
-
 __PASS_MAX = -1
 __MIN = 0.0000001
 
@@ -77,7 +76,7 @@ class Status(object):
 
     """
     def init(self, graph, weight, null_model,part=None):
-        """Initialize the status of a graph with every node in one community"""
+        #Initialize the status of a graph with every node in one community
         count = 0
         self.node2com = {}
         self.com2nodes = {}

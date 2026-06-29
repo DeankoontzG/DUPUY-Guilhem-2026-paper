@@ -1,4 +1,4 @@
-from .NullModelsInference import get_gravity_null_model_manual_iterative
+from NullModelsInference import get_gravity_null_model_manual_iterative
 
 import random
 import time

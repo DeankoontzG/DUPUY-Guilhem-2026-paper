@@ -1,5 +1,5 @@
-from .MetaLouvain import best_partition, standardized_residual_best_partition
-from .NullModelsInference import get_gravity_null_model_manual_iterative
+from MetaLouvain import best_partition, standardized_residual_best_partition
+from NullModelsInference import get_gravity_null_model_manual_iterative
 
 import inspect
 import networkx as nx
