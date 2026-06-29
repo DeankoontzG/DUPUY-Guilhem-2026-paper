@@ -52,7 +52,7 @@ All generated graphs will be sotred in 📁 **`graph_library/`**
 
 ---
 
-## 3 Repository Structure
+## 2 - Repository Structure
 
 * * **`LouvainDecorele.py`** – Implementation of our original Spatial decorrelation method for spatial Louvain community detection.
 * **`SiNEcustom.py`** – Implementation of our original custom signed decorrelated embedding model.
