@@ -38,7 +38,7 @@ To launch the embedding generation, community detection, and Link Prediction eva
   * `GRAPH_NAMES = "artificial_graph_sbmv_4"`: Root name matching your generated benchmark.
 
 The data generated during execution (Graphs with communities & embeddings stored as atteributes, train & evaluation datasets) will be stored in 📁 **`your_results/data`** in case you wish to perform further study.
-The resulting plots will be stored in **`your_results/plots`**
+The resulting plots will be stored in 📁 **`your_results/plots`**
 
 ### b. Re-generate the Synthetic Benchmark
 An artificial benchmark of 330 graphs is already available in graph_library (hybrids ratioin linearily spaced between 0 and 1 with a step of 0.1).
