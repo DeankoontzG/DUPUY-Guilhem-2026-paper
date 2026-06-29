@@ -30,9 +30,7 @@ This repository requires specific handling for `graph-tool` due to its C++ depen
 ### a. Compute decorelated Features & compare with Baselines
 To launch the embedding generation, community detection, and Link Prediction evaluation pipeline on both decorelated metrics and their baselines, run:
 
-    ```
     python main.py
-    ```
 
 * **Key parameters inside `main.py`:**
   * `NB_ITERATIONS = 2`: Defines the subset range of graphs to process.
