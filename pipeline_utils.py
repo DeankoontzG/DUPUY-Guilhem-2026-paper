@@ -1,6 +1,8 @@
 from LouvainDecorele import _appendSpatialLouvainCommunities
 from SiNEcustom import _append_SiNEcustom
 from ResidualDeterrenceEmbedding import _append_residual_deterrence_embedding
+from DeepWalk_on_residuals import _append_DeepwalkOnResiduals_with_sampling, _append_DeepwalkOnResiduals_top_quantile
+from TestsGradientDescent import _appendContinuousMixedMetrics
 
 import os
 import gc
@@ -30,8 +32,10 @@ import multiprocessing
 CURRENT_FILE_PATH = os.path.abspath(__file__)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(CURRENT_FILE_PATH)))
 
-EMBEDDINGS = ["deepwalk", 'SiNEcustom_spatial', "ResDeterEmb"]
-COMMUNITY_ALGOS = ['louvain', 'spatial_louvain']
+EMBEDDINGS = ["deepwalk", "gd_embedding"]
+#['SiNEcustom_spatial', "deepwalk_residuals_sampl", "deepwalk_residuals_sampl_noweight"]
+#["deepwalk", 'SiNEcustom_spatial', "ResDeterEmb"]
+COMMUNITY_ALGOS = ['louvain', 'spatial_louvain', "gradient_descent", "gd_sbm"]
 
 
 #################################################
@@ -115,14 +119,22 @@ def _extract_pair_features(G_train, u, v, densities):
 
     features = {}
 
-    for algo in COMMUNITY_ALGOS:
+    for algo in COMMUNITY_ALGOS :
         id_u = nu.get(f'{algo}_id')
         id_v = nv.get(f'{algo}_id')
         if id_u is None or id_v is None:
-            print(f"ALERTE : Noeud u={u} ou v={v} a un ID None pour {algo} !")
-            print(f"DEBUG: Attr cherché: {algo}_id | Présents dans nu: {list(nu.keys())}")
+            #print(f"ALERTE : Noeud u={u} ou v={v} a un ID None pour {algo} !")
+            #print(f"DEBUG: Attr cherché: {algo}_id | Présents dans nu: {list(nu.keys())}")
+            id_u = 0
+            id_v = 0
         pair = tuple(sorted((id_u, id_v)))
-        features[f'{algo}_density'] = densities[algo].get(pair, 0)
+        
+        try:
+            features[f'{algo}_density'] = densities[algo].get(pair, 0)
+            
+        except Exception as e:
+            #print(f"ERREUR ({algo}) : {e} -> Métrique passée.")
+            continue
 
     for emb in EMBEDDINGS:
         if emb in nu and emb in nv:
@@ -178,9 +190,6 @@ def prepare_balanced_data(G, G_train, negative_ratio=10.0, GroundTruth = None, n
 
     df = pd.DataFrame(results)
 
-    for emb in EMBEDDINGS:
-        dist_col = f'{emb}_dist'
-        df[f'{emb}_rank'] = df[dist_col].rank(pct=True)
         
     if GroundTruth is not None:
         print(f"Injection de la Ground Truth ({len(GroundTruth)} sources)...")
@@ -254,6 +263,7 @@ def _normalize_community_assignment(G, attr_name):
 COMMUNITY_MAPPING = {
     'louvain': _appendLouvainCommunities,
     "spatial_louvain" : _appendSpatialLouvainCommunities,
+    "gradient_descent": _appendContinuousMixedMetrics
 }
 
 
@@ -448,6 +458,9 @@ EMBEDDING_MAPPING = {
     'deepwalk': lambda G: _append_node2vec_features(G, p=1, q=1, attr_name="deepwalk"),
     'SiNEcustom_spatial' : lambda G, pos_attr="GT_pos": _append_SiNEcustom(G, pos_attr, attr_name="SiNEcustom_spatial", NullModel_method="ManualIter", temperature=0.5),
     'ResDeterEmb': lambda G: _append_residual_deterrence_embedding(G, pos_attr="GT_pos", attr_name = "ResDeterEmb"),
+    "deepwalk_residuals_sampl" : lambda G:_append_DeepwalkOnResiduals_with_sampling(G, pos_attr="GT_pos", attr_name="deepwalk_residuals_sampl", NullModel_method="ManualIter", emb_dim=64, k_neighbors=15, keep_original_weights=True),
+    "deepwalk_residuals_sampl_noweight" : lambda G:_append_DeepwalkOnResiduals_with_sampling(G, pos_attr="GT_pos", attr_name="deepwalk_residuals_sampl_noweight", NullModel_method="ManualIter", emb_dim=64, k_neighbors=15, keep_original_weights=False),
+    "deepwalk_residuals_quantile": lambda G:_append_DeepwalkOnResiduals_top_quantile(G, pos_attr="GT_pos", attr_name="deepwalk_residuals_quantile",NullModel_method="ManualIter", emb_dim=64, local_quantile=0.75)
 }
 
 def computeDistanceFeatures(G_train, embeddings="All", spatial_ref="GT_pos"):

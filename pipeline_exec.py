@@ -72,6 +72,12 @@ def analyze_features(G_name_short, nb_iterations, spatial_ref = "GT_pos", i_min 
     features_deepwalk = ["deepwalk_dist"]
     features_SiNEcustom_spatial = ["SiNEcustom_spatial_dist"]
     features_ResDeterEmb = ["ResDeterEmb_dist"]
+    features_deepwalk_residuals_sampl = ["deepwalk_residuals_sampl_dist"]
+    features_deepwalk_residuals_sampl_noweight = ["deepwalk_residuals_sampl_noweight_dist"]
+    features_deepwalk_residuals_quantile = ["deepwalk_residuals_quantile_dist"]
+    features_gd_sbm = ["gd_sbm_density"]
+    features_gd_embeddings = ["gd_embedding_dist"]
+    
 
     experiments = {
         "GT_pos": features_GT_pos,
@@ -80,12 +86,23 @@ def analyze_features(G_name_short, nb_iterations, spatial_ref = "GT_pos", i_min 
         "Deepwalk": features_deepwalk,
         "SiNEcustom_spatial": features_SiNEcustom_spatial,
         "ResDeterEmb": features_ResDeterEmb,
+        "deepwalk_residuals_sampl":features_deepwalk_residuals_sampl,
+        "deepwalk_residuals_sampl_noweight": features_deepwalk_residuals_sampl_noweight,
+        "deepwalk_residuals_quantile": features_deepwalk_residuals_quantile,
+        "gd_sbm": features_gd_sbm,
+        "gd_embedding": features_gd_embeddings,
 
         "GT_pos + Inferred_Commu louvain": features_GT_pos + features_commu_inferee_louvain,
         "GT_pos + Inferred_Commu spatial manuel iter": features_GT_pos + features_commu_inferee_spatial_louvain_stdized,
         "GT_pos + Deepwalk": features_GT_pos + features_deepwalk,
         "GT_pos + SiNEcustom_spatial": features_GT_pos + features_SiNEcustom_spatial,
         "GT_pos + ResDeterEmb": features_GT_pos + features_ResDeterEmb,
+        "GT_pos + deepwalk_residuals_sampl": features_GT_pos + features_deepwalk_residuals_sampl,
+        "GT_pos + deepwalk_residuals_sampl_noweight": features_GT_pos + features_deepwalk_residuals_sampl_noweight,
+        "GT_pos + deepwalk_residuals_quantile": features_GT_pos + features_deepwalk_residuals_quantile,
+        "GT_pos + gd_sbm": features_GT_pos + features_gd_sbm,
+        "GT_pos + gd_embedding": features_GT_pos + features_gd_embeddings,
+        "GT_pos + gd_embedding + gd_sbm": features_GT_pos + features_gd_embeddings + features_gd_sbm,
     }
 
     all_results = []
@@ -205,11 +222,22 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
         "Deepwalk", 
         "SiNEcustom_spatial", 
         "ResDeterEmb",
+        "deepwalk_residuals_sampl",
+        "deepwalk_residuals_sampl_noweight",
+        "deepwalk_residuals_quantile",
+        "gd_sbm",
+        "gd_embedding",
         "GT_pos + Inferred_Commu louvain", 
         "GT_pos + Inferred_Commu spatial manuel iter", 
         "GT_pos + Deepwalk", 
         "GT_pos + SiNEcustom_spatial", 
-        "GT_pos + ResDeterEmb"
+        "GT_pos + ResDeterEmb",
+        "GT_pos + deepwalk_residuals_sampl",
+        "GT_pos + deepwalk_residuals_sampl_noweight",
+        "GT_pos + deepwalk_residuals_quantile",
+        "GT_pos + gd_sbm",
+        "GT_pos + gd_embedding",
+        "GT_pos + gd_embedding + gd_sbm",
     ]
     
     df_compare = df_compare[df_compare["Experiment"].isin(feat_to_plot)]
@@ -228,15 +256,6 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
     plt.figure(figsize=(12, 7))
     sns.set_style("whitegrid")
 
-    # English mapping for experiments
-    labels_mapping = {
-        "Inferred_Commu louvain": "Standard Louvain",
-        "Inferred_Commu louvain spatial stdized": "Decorrelated Louvain (Std)",
-        "GT_pos + Inferred_Commu louvain": "GT Pos + Louvain",
-        "GT_pos + Inferred_Commu spatial manuel iter": "GT Pos + Decorrelated Louvain",
-        "GT_pos": "GT Pos Only"
-    }
-
     plt.rcParams.update({
         "text.usetex": True,
         "font.family": "serif",
@@ -252,11 +271,11 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
         mean_col = f"{metric}_mean"
         ci_col = f"{metric}_ci95" 
         
-        clean_label = labels_mapping.get(exp, exp)
         color = palette[i]
 
+        # Utilisation directe du nom original 'exp' pour le label
         plt.plot(subset["Ratio_SBM"], subset[mean_col], 
-                 marker='o', label=clean_label, color=color, linewidth=2, markersize=6)
+                 marker='o', label=exp, color=color, linewidth=2, markersize=6)
         
         plt.fill_between(
             subset["Ratio_SBM"], 
