@@ -72,12 +72,17 @@ def analyze_features(G_name_short, nb_iterations, spatial_ref = "GT_pos", i_min 
     features_deepwalk = ["deepwalk_dist"]
     features_SiNEcustom_spatial = ["SiNEcustom_spatial_dist"]
     features_ResDeterEmb = ["ResDeterEmb_dist"]
+    # ---- Tests ----
     features_deepwalk_residuals_sampl = ["deepwalk_residuals_sampl_dist"]
     features_deepwalk_residuals_sampl_noweight = ["deepwalk_residuals_sampl_noweight_dist"]
     features_deepwalk_residuals_quantile = ["deepwalk_residuals_quantile_dist"]
     features_gd_sbm = ["gd_sbm_density"]
     features_gd_embeddings = ["gd_embedding_dist"]
-    
+    features_SiNEcustom_sbm = ["SiNEcustom_sbm_dist"]
+    features_rpca_com = ["rpca_com_density"]
+    features_rpca_pos = ["rpca_pos_dist"]
+    features_outlier_com = ["outlier_com_density"]
+    features_outlier_pos = ["outlier_pos_dist"]
 
     experiments = {
         "GT_pos": features_GT_pos,
@@ -86,23 +91,34 @@ def analyze_features(G_name_short, nb_iterations, spatial_ref = "GT_pos", i_min 
         "Deepwalk": features_deepwalk,
         "SiNEcustom_spatial": features_SiNEcustom_spatial,
         "ResDeterEmb": features_ResDeterEmb,
-        "deepwalk_residuals_sampl":features_deepwalk_residuals_sampl,
+        # ---- Tests ----
+        "deepwalk_residuals_sampl": features_deepwalk_residuals_sampl,
         "deepwalk_residuals_sampl_noweight": features_deepwalk_residuals_sampl_noweight,
         "deepwalk_residuals_quantile": features_deepwalk_residuals_quantile,
         "gd_sbm": features_gd_sbm,
         "gd_embedding": features_gd_embeddings,
+        "SiNEcustom_sbm": features_SiNEcustom_sbm,
+        "rpca_com": features_rpca_com,
+        "rpca_pos": features_rpca_pos,
+        "outlier_com": features_outlier_com,
+        "outlier_pos": features_outlier_pos,
 
-        "GT_pos + Inferred_Commu louvain": features_GT_pos + features_commu_inferee_louvain,
-        "GT_pos + Inferred_Commu spatial manuel iter": features_GT_pos + features_commu_inferee_spatial_louvain_stdized,
+        "GT_pos + louvain": features_GT_pos + features_commu_inferee_louvain,
+        "GT_pos + spatial louvain": features_GT_pos + features_commu_inferee_spatial_louvain_stdized,
         "GT_pos + Deepwalk": features_GT_pos + features_deepwalk,
         "GT_pos + SiNEcustom_spatial": features_GT_pos + features_SiNEcustom_spatial,
         "GT_pos + ResDeterEmb": features_GT_pos + features_ResDeterEmb,
+        # ---- Tests ----
         "GT_pos + deepwalk_residuals_sampl": features_GT_pos + features_deepwalk_residuals_sampl,
         "GT_pos + deepwalk_residuals_sampl_noweight": features_GT_pos + features_deepwalk_residuals_sampl_noweight,
         "GT_pos + deepwalk_residuals_quantile": features_GT_pos + features_deepwalk_residuals_quantile,
         "GT_pos + gd_sbm": features_GT_pos + features_gd_sbm,
         "GT_pos + gd_embedding": features_GT_pos + features_gd_embeddings,
         "GT_pos + gd_embedding + gd_sbm": features_GT_pos + features_gd_embeddings + features_gd_sbm,
+        "SiNEcustom_sbm + spatial louvain": features_SiNEcustom_sbm + features_commu_inferee_spatial_louvain_stdized,
+        "Deepwalk + louvain": features_deepwalk + features_commu_inferee_louvain,
+        "rpca_pos + rpca_com": features_rpca_pos + features_rpca_com,
+        "outlier_pos + outlier_com": features_outlier_pos + features_outlier_com
     }
 
     all_results = []
@@ -222,9 +238,9 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
         "Deepwalk", 
         "SiNEcustom_spatial", 
         "ResDeterEmb",
-        "deepwalk_residuals_sampl",
-        "deepwalk_residuals_sampl_noweight",
-        "deepwalk_residuals_quantile",
+        #"deepwalk_residuals_sampl",
+        #"deepwalk_residuals_sampl_noweight",
+        #"deepwalk_residuals_quantile",
         "gd_sbm",
         "gd_embedding",
         "GT_pos + Inferred_Commu louvain", 
@@ -238,6 +254,38 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
         "GT_pos + gd_sbm",
         "GT_pos + gd_embedding",
         "GT_pos + gd_embedding + gd_sbm",
+    ]
+    feat_to_plot = [
+        "GT_pos", 
+        # "Inferred_Commu louvain", 
+        # "Inferred_Commu louvain spatial stdized", 
+        # "Deepwalk", 
+        # "SiNEcustom_spatial", 
+        # "ResDeterEmb",
+        # "deepwalk_residuals_sampl",
+        # "deepwalk_residuals_sampl_noweight",
+        # "deepwalk_residuals_quantile",
+        # "gd_sbm",
+        # "gd_embedding",
+        #"rpca_com",
+        #"rpca_pos",
+        "outlier_com",
+        "outlier_pos",
+        # "GT_pos + Inferred_Commu louvain", 
+        # "GT_pos + Inferred_Commu spatial manuel iter", 
+        # "GT_pos + Deepwalk", 
+        # "GT_pos + SiNEcustom_spatial", 
+        # "GT_pos + ResDeterEmb",
+        # "GT_pos + deepwalk_residuals_sampl",
+        # "GT_pos + deepwalk_residuals_sampl_noweight",
+        # "GT_pos + deepwalk_residuals_quantile",
+        # "GT_pos + gd_sbm",
+        # "GT_pos + gd_embedding",
+        # "GT_pos + gd_embedding + gd_sbm",
+        "SiNEcustom_sbm + spatial louvain",
+        #"Deepwalk + louvain",
+        "rpca_pos + rpca_com",
+        "outlier_pos + outlier_com"
     ]
     
     df_compare = df_compare[df_compare["Experiment"].isin(feat_to_plot)]
