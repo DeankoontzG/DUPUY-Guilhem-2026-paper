@@ -1,11 +1,9 @@
 from LouvainDecorele import _appendSpatialLouvainCommunities
 from SiNEcustom import _append_SiNEcustom
-from ResidualDeterrenceEmbedding import _append_residual_deterrence_embedding
-from DeepWalk_on_residuals import _append_DeepwalkOnResiduals_with_sampling, _append_DeepwalkOnResiduals_top_quantile
-from TestsGradientDescent import _appendContinuousMixedMetrics
+
+from Louvain_sbm import _appendSbmLouvainCommunities
+from DeepWalk_on_residuals import _append_DeepwalkOnResiduals_full
 from SiNE_on_sbm_residuals import _append_SineSBMcustom
-from rpca import _append_RPCA_SiNEcustom
-from outlierLouvain import _append_OutlierLouvain_SiNEcustom
 
 import os
 import gc
@@ -35,10 +33,8 @@ import multiprocessing
 CURRENT_FILE_PATH = os.path.abspath(__file__)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(CURRENT_FILE_PATH)))
 
-EMBEDDINGS = ["deepwalk", "SiNEcustom_spatial", "SiNEcustom_sbm", "rpca_pos", "outlier_pos", "outlierLouvain"] #"rpca", 
-#['SiNEcustom_spatial', "deepwalk_residuals_sampl", "deepwalk_residuals_sampl_noweight"]
-#["deepwalk", 'SiNEcustom_spatial', "ResDeterEmb"]
-COMMUNITY_ALGOS = ['louvain', 'spatial_louvain', "rpca_com", "outlier_com"]
+EMBEDDINGS = ["deepwalk", "SiNEcustom_spatial", "SiNEcustom_sbm", "deepwalk_residuals"]
+COMMUNITY_ALGOS = ['louvain', 'spatial_louvain', "sbm_louvain"]
 
 
 #################################################
@@ -211,6 +207,10 @@ def prepare_balanced_data(G, G_train, negative_ratio=10.0, GroundTruth = None, n
                 pos_u = data[indices_u]
                 pos_v = data[indices_v]
                 df['GT_pos_dist'] = np.linalg.norm(pos_u - pos_v, axis=1)
+            elif feat_name == 'GT_sbm_matrix':
+                ids_u = GroundTruth['GT_sbm_id'][indices_u]
+                ids_v = GroundTruth['GT_sbm_id'][indices_v]
+                df['GT_sbm_density'] = data[ids_u, ids_v]
      
             # Cas 1 : Matrice de Paires (N x N)
             elif isinstance(data, np.ndarray) and data.ndim == 2 and data.shape[0]==data.shape[1] and data.shape[0] > 100: 
@@ -266,7 +266,7 @@ def _normalize_community_assignment(G, attr_name):
 COMMUNITY_MAPPING = {
     'louvain': _appendLouvainCommunities,
     "spatial_louvain" : _appendSpatialLouvainCommunities,
-    "gradient_descent": _appendContinuousMixedMetrics
+    "sbm_louvain": _appendSbmLouvainCommunities,
 }
 
 
@@ -460,13 +460,8 @@ def _append_node2vec_features(G_train, p, q, attr_name, dimensions=64):
 EMBEDDING_MAPPING = {
     'deepwalk': lambda G: _append_node2vec_features(G, p=1, q=1, attr_name="deepwalk"),
     'SiNEcustom_spatial' : lambda G, pos_attr="GT_pos": _append_SiNEcustom(G, pos_attr, attr_name="SiNEcustom_spatial", NullModel_method="ManualIter", temperature=0.5),
-    'ResDeterEmb': lambda G: _append_residual_deterrence_embedding(G, pos_attr="GT_pos", attr_name = "ResDeterEmb"),
-    "deepwalk_residuals_sampl" : lambda G:_append_DeepwalkOnResiduals_with_sampling(G, pos_attr="GT_pos", attr_name="deepwalk_residuals_sampl", NullModel_method="ManualIter", emb_dim=64, k_neighbors=15, keep_original_weights=True),
-    "deepwalk_residuals_sampl_noweight" : lambda G:_append_DeepwalkOnResiduals_with_sampling(G, pos_attr="GT_pos", attr_name="deepwalk_residuals_sampl_noweight", NullModel_method="ManualIter", emb_dim=64, k_neighbors=15, keep_original_weights=False),
-    "deepwalk_residuals_quantile": lambda G:_append_DeepwalkOnResiduals_top_quantile(G, pos_attr="GT_pos", attr_name="deepwalk_residuals_quantile",NullModel_method="ManualIter", emb_dim=64, local_quantile=0.75),
-    "SiNEcustom_sbm": lambda G:_append_SineSBMcustom(G, com_attr="spatial_louvain_id", attr_name="SiNEcustom_sbm", temperature=0.5, emb_dim=64, epochs=100, lr=0.1),
-    "rpca": lambda G:_append_RPCA_SiNEcustom(G, attr_com="rpca_com_id", attr_pos="rpca_pos", emb_dim=64, temperature=0.5, epochs=100, lr=0.1),
-    "outlierLouvain": lambda G:_append_OutlierLouvain_SiNEcustom(G, attr_com="outlier_com_id", attr_pos="outlier_pos", emb_dim=64, outlier_threshold=0.15, temperature=0.5, epochs=100, lr=0.1),
+    "SiNEcustom_sbm": lambda G:_append_SineSBMcustom(G, com_attr="GT_sbm_id", attr_name="SiNEcustom_sbm", temperature=0.5, emb_dim=64, epochs=100, lr=0.1),
+    "deepwalk_residuals": lambda G:_append_DeepwalkOnResiduals_full(G, pos_attr="GT_pos", attr_name="deepwalk_residuals", NullModel_method="ManualIter", emb_dim=64),
 }
 
 def computeDistanceFeatures(G_train, embeddings="All", spatial_ref="GT_pos"):

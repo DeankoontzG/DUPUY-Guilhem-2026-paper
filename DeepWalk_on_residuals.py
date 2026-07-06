@@ -3,8 +3,9 @@ from NullModelsInference import get_gravity_null_model_manual_iterative
 import time
 import numpy as np
 import networkx as nx
-from node2vec import Node2Vec
 import multiprocessing
+from node2vec import Node2Vec
+
 
 
 def _append_DeepwalkOnResiduals_with_sampling(G_train, pos_attr="GT_pos", attr_name="deepwalk_residuals_sampl", 
@@ -168,6 +169,68 @@ def _append_DeepwalkOnResiduals_top_quantile(G_train, pos_attr="GT_pos", attr_na
         elif str(node) in model.wv:
             embeddings[node] = model.wv[str(node)]
         else:
+            embeddings[node] = np.zeros(emb_dim)
+
+    nx.set_node_attributes(G_train, embeddings, attr_name)
+    
+    print(f"Deepwalk on Residuals terminé en {time.time() - start_time:.2f}s ({emb_dim} dimensions).")
+    return G_train
+    
+
+def _append_DeepwalkOnResiduals_full(G_train, pos_attr="GT_pos", attr_name="deepwalk_residuals", 
+                                    NullModel_method="ManualIter", emb_dim=64):
+    print(f"Calcul de Deepwalk on Residuals Complet (sans échantillonnage, NullModel type ={NullModel_method})...")
+    start_time = time.time()
+
+    A = nx.to_numpy_array(G_train)
+    nodes = list(G_train.nodes())
+    N = len(nodes)
+    cores = multiprocessing.cpu_count() - 1
+    
+    if NullModel_method == "ManualIter":
+        P, _ = get_gravity_null_model_manual_iterative(G_train, pos_attr)
+        P_symmetric = (P + P.T) / 2
+        R_matrix = A - P_symmetric
+    else:
+        print(f"NullModel_method {NullModel_method} non reconnue")
+        return G_train
+
+    # On ne garde que les résiduels positifs
+    R_pos = np.maximum(R_matrix, 0)
+
+    # Création directe du graphe orienté à partir de la matrice de résidus positifs
+    G_res_tmp = nx.from_numpy_array(R_pos, create_using=nx.DiGraph)
+    mapping = {i: nodes[i] for i in range(N)}
+    G_res_tmp = nx.relabel_nodes(G_res_tmp, mapping)
+    
+    # Nettoyage des arêtes ayant un poids nul (strictement égal à 0)
+    zero_edges = [(u, v) for u, v, d in G_res_tmp.edges(data=True) if d.get('weight', 0) == 0]
+    G_res_tmp.remove_edges_from(zero_edges)
+    
+    print(f"Graphe temporaire généré : {G_res_tmp.number_of_nodes()} nœuds et {G_res_tmp.number_of_edges()} arêtes.")
+
+    print("Génération des marches aléatoires sur le graphe complet des résidus...")
+    
+    # On utilise obligatoirement 'weight' puisque l'on garde les poids originaux
+    node2vec = Node2Vec(G_res_tmp, 
+                        dimensions=emb_dim, 
+                        walk_length=30, 
+                        num_walks=100, 
+                        workers=cores, 
+                        p=1.0, q=1.0,  # Comportement DeepWalk pur
+                        weight_key='weight')
+
+    print("Entraînement du modèle Skip-gram (Word2Vec)...")
+    model = node2vec.fit(window=10, min_count=1, batch_words=1000)
+    
+    embeddings = {}
+    for node in G_train.nodes():
+        if node in model.wv:
+            embeddings[node] = model.wv[node]
+        elif str(node) in model.wv:
+            embeddings[node] = model.wv[str(node)]
+        else:
+            # Cas où le nœud n'a aucun résidu positif sortant/entrant et est resté isolé
             embeddings[node] = np.zeros(emb_dim)
 
     nx.set_node_attributes(G_train, embeddings, attr_name)

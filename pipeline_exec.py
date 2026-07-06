@@ -29,10 +29,13 @@ def compute_features(G, G_name, spatial_ref = "GT_pos"):
     if 'GroundTruth_JSON' in G.graph:
         print(f"[INIT] Extraction de la GT GroundTruth pour {G_name}...")
         gt_raw = json.loads(G.graph['GroundTruth_JSON'])
-        raw_pos = gt_raw.get('GT_pos', [])
-        gt_pos_array = np.array(raw_pos, dtype=float)
-
-        GT = {'GT_pos': gt_pos_array}
+    
+        GT = {
+            'GT_pos': np.array(gt_raw.get('GT_pos', [])),
+            'GT_sbm_id': np.array(gt_raw.get('GT_sbm_id', [])),
+            'GT_sbm_matrix': np.array(gt_raw.get('GT_sbm_matrix', []))
+            
+        }
     else:
         print("[WARNING] Aucune GroundTruth_JSON trouvée dans G.graph")
         GT = None
@@ -40,6 +43,7 @@ def compute_features(G, G_name, spatial_ref = "GT_pos"):
     if GT is not None and 'GT_pos' in GT:
             for i, node_id in enumerate(G.nodes()):
                 G.nodes[node_id]['GT_pos'] = GT['GT_pos'][i]
+                G.nodes[node_id]['GT_sbm_id'] = GT['GT_sbm_id'][i]
     
     G_kept, G_hidden = hide_graph_links(G, test_size=0.10)
     G_train, G_test = hide_graph_links(G_kept, test_size=0.15)
@@ -67,58 +71,38 @@ def compute_features(G, G_name, spatial_ref = "GT_pos"):
 def analyze_features(G_name_short, nb_iterations, spatial_ref = "GT_pos", i_min =0.00, i_max = 1.00, nb_i=11, name_export_results="DATE"):
 
     features_GT_pos = ['GT_pos_dist']
-    features_commu_inferee_louvain = ["louvain_density"]
-    features_commu_inferee_spatial_louvain_stdized = ["spatial_louvain_density"]
+    features_GT_sbm = ["GT_sbm_density"]
+    features_louvain = ["louvain_density"]
+    features_spatial_louvain = ["spatial_louvain_density"]
     features_deepwalk = ["deepwalk_dist"]
     features_SiNEcustom_spatial = ["SiNEcustom_spatial_dist"]
-    features_ResDeterEmb = ["ResDeterEmb_dist"]
     # ---- Tests ----
-    features_deepwalk_residuals_sampl = ["deepwalk_residuals_sampl_dist"]
-    features_deepwalk_residuals_sampl_noweight = ["deepwalk_residuals_sampl_noweight_dist"]
-    features_deepwalk_residuals_quantile = ["deepwalk_residuals_quantile_dist"]
-    features_gd_sbm = ["gd_sbm_density"]
-    features_gd_embeddings = ["gd_embedding_dist"]
+    features_deepwalk_residuals = ["deepwalk_residuals_dist"]
     features_SiNEcustom_sbm = ["SiNEcustom_sbm_dist"]
-    features_rpca_com = ["rpca_com_density"]
-    features_rpca_pos = ["rpca_pos_dist"]
-    features_outlier_com = ["outlier_com_density"]
-    features_outlier_pos = ["outlier_pos_dist"]
+    features_sbm_louvain = ["sbm_louvain_density"]
 
     experiments = {
         "GT_pos": features_GT_pos,
-        "Inferred_Commu louvain": features_commu_inferee_louvain,
-        "Inferred_Commu louvain spatial stdized": features_commu_inferee_spatial_louvain_stdized,
+        "GT_sbm": features_GT_sbm,
+        "Louvain": features_louvain,
+        "Louvain spatial": features_spatial_louvain,
         "Deepwalk": features_deepwalk,
         "SiNEcustom_spatial": features_SiNEcustom_spatial,
-        "ResDeterEmb": features_ResDeterEmb,
         # ---- Tests ----
-        "deepwalk_residuals_sampl": features_deepwalk_residuals_sampl,
-        "deepwalk_residuals_sampl_noweight": features_deepwalk_residuals_sampl_noweight,
-        "deepwalk_residuals_quantile": features_deepwalk_residuals_quantile,
-        "gd_sbm": features_gd_sbm,
-        "gd_embedding": features_gd_embeddings,
         "SiNEcustom_sbm": features_SiNEcustom_sbm,
-        "rpca_com": features_rpca_com,
-        "rpca_pos": features_rpca_pos,
-        "outlier_com": features_outlier_com,
-        "outlier_pos": features_outlier_pos,
+        "Deepwalk on residuals": features_deepwalk_residuals,
+        "Louvain sbm": features_sbm_louvain,
 
-        "GT_pos + louvain": features_GT_pos + features_commu_inferee_louvain,
-        "GT_pos + spatial louvain": features_GT_pos + features_commu_inferee_spatial_louvain_stdized,
+        "GT_pos + louvain": features_GT_pos + features_louvain,
+        "GT_pos + spatial louvain": features_GT_pos + features_spatial_louvain,
         "GT_pos + Deepwalk": features_GT_pos + features_deepwalk,
         "GT_pos + SiNEcustom_spatial": features_GT_pos + features_SiNEcustom_spatial,
-        "GT_pos + ResDeterEmb": features_GT_pos + features_ResDeterEmb,
         # ---- Tests ----
-        "GT_pos + deepwalk_residuals_sampl": features_GT_pos + features_deepwalk_residuals_sampl,
-        "GT_pos + deepwalk_residuals_sampl_noweight": features_GT_pos + features_deepwalk_residuals_sampl_noweight,
-        "GT_pos + deepwalk_residuals_quantile": features_GT_pos + features_deepwalk_residuals_quantile,
-        "GT_pos + gd_sbm": features_GT_pos + features_gd_sbm,
-        "GT_pos + gd_embedding": features_GT_pos + features_gd_embeddings,
-        "GT_pos + gd_embedding + gd_sbm": features_GT_pos + features_gd_embeddings + features_gd_sbm,
-        "SiNEcustom_sbm + spatial louvain": features_SiNEcustom_sbm + features_commu_inferee_spatial_louvain_stdized,
-        "Deepwalk + louvain": features_deepwalk + features_commu_inferee_louvain,
-        "rpca_pos + rpca_com": features_rpca_pos + features_rpca_com,
-        "outlier_pos + outlier_com": features_outlier_pos + features_outlier_com
+        "GT_pos + Deepwalk on residuals": features_GT_pos + features_deepwalk_residuals,
+        "GT_sbm + SiNEcustom_sbm": features_GT_sbm + features_SiNEcustom_sbm,
+        "GT_sbm + Louvain sbm": features_GT_sbm + features_sbm_louvain,
+        "GT_sbm + Louvain": features_GT_sbm + features_louvain,
+        "GT_sbm + Deepwalk": features_GT_sbm + features_deepwalk,
     }
 
     all_results = []
@@ -232,61 +216,29 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
     df_compare = pd.read_csv(csv_path)
 
     feat_to_plot = [
-        "GT_pos", 
-        "Inferred_Commu louvain", 
-        "Inferred_Commu louvain spatial stdized", 
-        "Deepwalk", 
-        "SiNEcustom_spatial", 
-        "ResDeterEmb",
-        #"deepwalk_residuals_sampl",
-        #"deepwalk_residuals_sampl_noweight",
-        #"deepwalk_residuals_quantile",
-        "gd_sbm",
-        "gd_embedding",
-        "GT_pos + Inferred_Commu louvain", 
-        "GT_pos + Inferred_Commu spatial manuel iter", 
-        "GT_pos + Deepwalk", 
-        "GT_pos + SiNEcustom_spatial", 
-        "GT_pos + ResDeterEmb",
-        "GT_pos + deepwalk_residuals_sampl",
-        "GT_pos + deepwalk_residuals_sampl_noweight",
-        "GT_pos + deepwalk_residuals_quantile",
-        "GT_pos + gd_sbm",
-        "GT_pos + gd_embedding",
-        "GT_pos + gd_embedding + gd_sbm",
+        "GT_pos",
+        "GT_sbm",
+        "Louvain",
+        "Louvain spatial",
+        "Deepwalk",
+        "SiNEcustom_spatial",
+        # ---- Tests ----
+        "SiNEcustom_sbm",
+        "Deepwalk on residuals",
+        "Louvain sbm",
+
+        "GT_pos + louvain",
+        "GT_pos + spatial louvain",
+        "GT_pos + Deepwalk",
+        "GT_pos + SiNEcustom_spatial",
+        # ---- Tests ----
+        "GT_pos + Deepwalk on residuals",
+        "GT_sbm + SiNEcustom_sbm",
+        "GT_sbm + Louvain sbm",
+        "GT_sbm + Louvain",
+        "GT_sbm + Deepwalk",
     ]
-    feat_to_plot = [
-        "GT_pos", 
-        # "Inferred_Commu louvain", 
-        # "Inferred_Commu louvain spatial stdized", 
-        # "Deepwalk", 
-        # "SiNEcustom_spatial", 
-        # "ResDeterEmb",
-        # "deepwalk_residuals_sampl",
-        # "deepwalk_residuals_sampl_noweight",
-        # "deepwalk_residuals_quantile",
-        # "gd_sbm",
-        # "gd_embedding",
-        #"rpca_com",
-        #"rpca_pos",
-        "outlier_com",
-        "outlier_pos",
-        # "GT_pos + Inferred_Commu louvain", 
-        # "GT_pos + Inferred_Commu spatial manuel iter", 
-        # "GT_pos + Deepwalk", 
-        # "GT_pos + SiNEcustom_spatial", 
-        # "GT_pos + ResDeterEmb",
-        # "GT_pos + deepwalk_residuals_sampl",
-        # "GT_pos + deepwalk_residuals_sampl_noweight",
-        # "GT_pos + deepwalk_residuals_quantile",
-        # "GT_pos + gd_sbm",
-        # "GT_pos + gd_embedding",
-        # "GT_pos + gd_embedding + gd_sbm",
-        "SiNEcustom_sbm + spatial louvain",
-        #"Deepwalk + louvain",
-        "rpca_pos + rpca_com",
-        "outlier_pos + outlier_com"
-    ]
+
     
     df_compare = df_compare[df_compare["Experiment"].isin(feat_to_plot)]
     df_compare = df_compare.sort_values(by="Experiment", ascending=True)
