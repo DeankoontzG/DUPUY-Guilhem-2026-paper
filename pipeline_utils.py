@@ -33,9 +33,12 @@ import multiprocessing
 CURRENT_FILE_PATH = os.path.abspath(__file__)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(CURRENT_FILE_PATH)))
 
+"""
 EMBEDDINGS = ["deepwalk", "SiNEcustom_spatial", "SiNEcustom_sbm", "deepwalk_residuals"]
 COMMUNITY_ALGOS = ['louvain', 'spatial_louvain', "sbm_louvain"]
-
+"""
+EMBEDDINGS = ["deepwalk", "SiNEcustom_spatial"]
+COMMUNITY_ALGOS = ['louvain', 'spatial_louvain']
 
 #################################################
 # FONCTIONS DE VALIDATION DES DONNES EN ENTREE ##

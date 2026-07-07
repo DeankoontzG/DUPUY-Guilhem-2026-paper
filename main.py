@@ -8,11 +8,12 @@ from datetime import datetime
 
 # nohup python -u main.py 2>&1 | grep --line-buffered -vE "it/s|\[.*\]|^----" | grep --line-buffered "." > myoutfile &
 
-NB_ITERATIONS = 30
-GRAPH_NAMES = "artificial_graph_sbmv_4" # Name of graphs (root) stored in graph_library
+NB_ITERATIONS = 10
+GRAPH_NAMES = "artificial_graph_simple_somme"
+#"artificial_graph_sbmv_4" # Name of graphs (root) stored in graph_library
 
 if __name__ == "__main__":
-    """
+    
     execution_stats = []
     
     for nbiter in range(1,NB_ITERATIONS + 1) : 
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     print("RÉSUMÉ DES STATISTIQUES D'EXÉCUTION")
     print("="*50)
     print(df.to_string(index=False))
-    """
+    
     
     start_time = time.time()
     date_and_time = datetime.now().strftime("%d-%m-%Y_%H-%M")
