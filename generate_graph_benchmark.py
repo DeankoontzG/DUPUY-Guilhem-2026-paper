@@ -14,7 +14,7 @@ from scipy.optimize import fsolve, minimize_scalar
 
 BENCHMARK_SIZE = 30 # Nombre de graphe de chaque ratio d'hybridation créés
 HYBRID_RATIO_LIST = np.arange(1.00, -0.10, -0.10) # Ratios d'hybridation générés
-HYBRIDATION_METHOD = "Somme" #"Somme" pour hybridation via somme pondérée, "Custom_exposant" pour méthodealternative. 
+HYBRIDATION_METHOD = "Somme" #"Somme" pour hybridation via somme pondérée, "Power" pour méthodealternative. 
 
 #######################################
 ###### FONCTIONS POUR GENERAZAO #######
@@ -159,7 +159,7 @@ def generate_graph_benchmarks(Hybrid_ratios_list, P_sbm, P_spatial, position, k,
         print("\n" + "="*90)
         
         P_hybride = P_sbm * alpha + P_spatial * (1 - alpha)
-        if agg_method == "Custom_exposant" : 
+        if agg_method == "Power" : 
             kpow = 4
             tol = 1e-2
             target_expectation = alpha * np.sum(P_sbm) + (1 - alpha) * np.sum(P_spatial)
@@ -409,7 +409,7 @@ if __name__ == "__main__":
             name="artificial_graph_sbmv_4", 
             save_P_matrix=True, 
             nb_iter=nb_iter_name, 
-            agg_method= HYBRIDATION_METHOD # Agrégation par somme via "Somme", par exposant via "Custom_exposant"
+            agg_method= HYBRIDATION_METHOD # Agrégation par somme via "Somme", par exposant via "Power"
         )
 
         print(f"\nItération {nb_iter} terminée. Échantillon de probabilités (alpha={list(all_P_matrices.keys())[0]}) :")

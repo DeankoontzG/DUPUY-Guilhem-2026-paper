@@ -8,9 +8,14 @@ from datetime import datetime
 
 # nohup python -u main.py 2>&1 | grep --line-buffered -vE "it/s|\[.*\]|^----" | grep --line-buffered "." > myoutfile &
 
+<<<<<<< Updated upstream
 NB_ITERATIONS = 10
 GRAPH_NAMES = "artificial_graph_simple_somme"
 #"artificial_graph_sbmv_4" # Name of graphs (root) stored in graph_library
+=======
+NB_ITERATIONS = 30
+GRAPH_NAMES = "artificial_graph_sbmv_6" # Name of graphs (root) stored in graph_library
+>>>>>>> Stashed changes
 
 if __name__ == "__main__":
     

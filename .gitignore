@@ -21,4 +21,5 @@ ENV/
 ehthumbs.db
 Thumbs.db
 
-
+# --- Spécifiques au projet  ---
+myoutfile
