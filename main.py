@@ -8,14 +8,9 @@ from datetime import datetime
 
 # nohup python -u main.py 2>&1 | grep --line-buffered -vE "it/s|\[.*\]|^----" | grep --line-buffered "." > myoutfile &
 
-<<<<<<< Updated upstream
-NB_ITERATIONS = 10
-GRAPH_NAMES = "artificial_graph_simple_somme"
-#"artificial_graph_sbmv_4" # Name of graphs (root) stored in graph_library
-=======
 NB_ITERATIONS = 30
-GRAPH_NAMES = "artificial_graph_sbmv_6" # Name of graphs (root) stored in graph_library
->>>>>>> Stashed changes
+GRAPH_NAMES = "artificial_graph_simple_somme" # Name of graphs (root) stored in graph_library
+#"artificial_graph_sbmv_4" # Name of graphs (root) stored in graph_library
 
 if __name__ == "__main__":
     
@@ -74,7 +69,7 @@ if __name__ == "__main__":
     print("="*50)
     print(f"{duration} secs")
     
-    
+
     # Affichage des résultats : 
     #date_and_time = "03-07-2026_17-54"
     input_dir = os.path.join(os.getcwd(), "your_results", "data")

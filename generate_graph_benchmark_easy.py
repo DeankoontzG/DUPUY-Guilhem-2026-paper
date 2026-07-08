@@ -10,9 +10,9 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.optimize import fsolve, minimize_scalar
 
 # Configuration globale pour le benchmark synthétique
-BENCHMARK_SIZE = 10
+BENCHMARK_SIZE = 30
 HYBRID_RATIO_LIST = np.arange(1.00, -0.10, -0.10)
-HYBRIDATION_METHOD = "Somme"  # Ou "Custom_exposant"
+HYBRIDATION_METHOD = "Somme"  # "Somme" Ou "Custom_exposant"
 
 # Paramètres du nouveau générateur analytique
 N_NODES = 198
