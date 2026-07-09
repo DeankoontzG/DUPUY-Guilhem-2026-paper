@@ -84,6 +84,7 @@ def analyze_features(G_name_short, nb_iterations, spatial_ref = "GT_pos", i_min 
     experiments = {
         "GT_pos": features_GT_pos,
         "GT_sbm": features_GT_sbm,
+        "GT_pos + GT_sbm": features_GT_pos + features_GT_sbm,
         "Louvain": features_louvain,
         "Louvain spatial": features_spatial_louvain,
         "Deepwalk": features_deepwalk,
@@ -218,6 +219,7 @@ def generate_and_show_plot(csv_path, metric="AUC-ROC_eval", name="plot_output"):
     feat_to_plot = [
         "GT_pos",
         "GT_sbm",
+        "GT_pos + GT_sbm",
         "Louvain",
         "Louvain spatial",
         "Deepwalk",
