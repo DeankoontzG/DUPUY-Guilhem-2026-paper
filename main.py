@@ -9,13 +9,11 @@ from datetime import datetime
 # nohup python -u main.py 2>&1 | grep --line-buffered -vE "it/s|\[.*\]|^----" | grep --line-buffered "." > myoutfile &
 
 NB_ITERATIONS = 30
-GRAPH_NAMES = "artificial_graph_simple_power" # Name of graphs (root) stored in graph_library
+GRAPH_NAMES = "artificial_graph_sbmv_6" # Name of graphs (root) stored in graph_library
 #"artificial_graph_simple_somme" # Name of graphs (root) stored in graph_library
-#"artificial_graph_sbmv_6"
 
 if __name__ == "__main__":
 
-    """
     execution_stats = []
     
     for nbiter in range(1,NB_ITERATIONS + 1) : 
@@ -58,7 +56,7 @@ if __name__ == "__main__":
     print("RÉSUMÉ DES STATISTIQUES D'EXÉCUTION")
     print("="*50)
     print(df.to_string(index=False))
-    """
+    
     
     start_time = time.time()
     date_and_time = datetime.now().strftime("%d-%m-%Y_%H-%M")
@@ -83,3 +81,4 @@ if __name__ == "__main__":
     print("="*80)
     print("======= FINI !!!!!!!!======")
     print("="*80)
+    
